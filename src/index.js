@@ -1,11 +1,10 @@
 import express from "express";
+import profile_picture from './routes/picture.routes.js'
 import userRoutes from './routes/users.routes.js'
 import session from './routes/roles.routes.js'
+import catego from './routes/categories.routes.js'
 
 const app = express();
-
-
-app.use(express.json())
 
 // CORS
 app.use((req, res, next) => {
@@ -14,9 +13,17 @@ app.use((req, res, next) => {
     next()
 })
 
+app.use(express.json())
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Welcome to Blogging' })
+})
+  
 
 app.use('/blogg/user', session)
 app.use('/blogg/user', userRoutes)
+app.use('/blogg/profile', profile_picture)
 
+app.use('/blogg', catego)
 
 app.listen(3000, ()=> console.log("Server running http://localhost:3000"))
