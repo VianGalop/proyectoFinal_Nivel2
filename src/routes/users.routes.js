@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createUser, deleteUser, readUsers, updateUser } from "../controllers/users.controller.js";
-import uploadPicture from '../config/multer.js'
+import { uploadPicture } from '../config/multer.js'
 
 const router = Router()
 

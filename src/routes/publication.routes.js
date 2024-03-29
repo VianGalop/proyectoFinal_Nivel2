@@ -1,35 +1,37 @@
 import Router from "express";
-import { createPublication, deletePublication, getPublicationByTitle, getPublications, updatePublication } from "../controllers/publication.controller";
+import { createPublication, deletePublication, getPublicationByTitle, getPublications, updatePublication } from "../controllers/publication.controller.js";
 
-const app = Router();
+const router = Router();
 
 /*
 Lista de Publicaciones
 GET role/idUser/publications
 */
-app.get('/role/:idUser/publications', getPublications);
+router.get('/role/:idUser/publications', getPublications);
 
 
 /*
 Buscar por Titulo publicacion
 GET role/idUser/title
 */
-app.get('/role/:idUser/publication_title', getPublicationByTitle);
+router.get('/role/:idUser/publication_title', getPublicationByTitle);
 
 /*
 Crear una publicacion
 POST role/idUser/create
 */
-app.post('/role/:idUser/publication_create', createPublication);
+router.post('/role/:idUser/publication_create', createPublication);
 
 /*
 Actualizar publicacion
 PATCH role/idUser/update/:idPub
 */
-app.patch('/role/:idUser/update/:idPub', updatePublication);
+router.patch('/role/:idUser/update/:idPub', updatePublication);
 
 /* 
 Borrar publicacion
 DELETE role/idUser/delete/:idPub
 */
-app.delete('/role/:idUser/update/:idPub',deletePublication);
+router.delete('/role/:idUser/update/:idPub',deletePublication);
+
+export default router

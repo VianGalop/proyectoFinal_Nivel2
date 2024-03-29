@@ -3,6 +3,8 @@ import profile_picture from './routes/picture.routes.js'
 import userRoutes from './routes/users.routes.js'
 import session from './routes/roles.routes.js'
 import catego from './routes/categories.routes.js'
+import publication from './routes/publication.routes.js'
+import comment from './routes/comment.routes.js'
 
 const app = express();
 
@@ -20,10 +22,11 @@ app.get('/', (req, res) => {
 })
   
 
-app.use('/blogg/user', session)
-app.use('/blogg/user', userRoutes)
+app.use('/blogg/login', session)
+app.use('/blogg/users', userRoutes)
 app.use('/blogg/profile', profile_picture)
-
-app.use('/blogg', catego)
+app.use('/blog/publications/', publication)
+app.use('/blogg/comments', comment)
+app.use('/blogg/categories', catego)
 
 app.listen(3000, ()=> console.log("Server running http://localhost:3000"))

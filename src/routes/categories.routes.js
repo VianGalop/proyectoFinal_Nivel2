@@ -20,19 +20,19 @@ router.get('/:role/categories/:idc', getByCategory);
 Crear una categoria  (Admin)
 POST role/idUser/create
 */
-router.post('/:role/categories/create', createCategory);
+router.post('/:role/create', createCategory);
 
 /*
 Actualizar categoria (Admin)
 PATCH role/idUser/update/:idCat
 */
-router.patch('/:role/categories/update/:idc',updateCategory);
+router.patch('/:role/update/:idc',updateCategory);
 
 /* 
 Borrar categoria (Admin)
 DELETE role/idUser/delete/:idCat
 */
-router.delete('/:role/categories/delete/:idc',deleteCategory);
+router.delete('/:role/delete/:idc',deleteCategory);
 
 
 export default router;

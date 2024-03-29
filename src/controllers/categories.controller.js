@@ -4,7 +4,7 @@ export const getCategories = async (req, res) =>{
     try {
         // Verificar que es usuario_administrador
         const { role } = req.params
-        if(!role || role != 1){
+        if(isNaN(role) || role != 1){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
         // Consulta a DB
@@ -52,12 +52,11 @@ export const getByCategory = async (req, res) =>{
 
 export const createCategory = async (req, res) =>{
     try {
-
+        const { role } = req.params
         const {name_category: nameCategory} = req.body
         const todayDate = new Date().toLocaleDateString('en-ZA');
-        const { role } = req.params
-
-        if(!role || role != 1){
+        
+        if(isNaN(role) || role != 1){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
         
@@ -66,9 +65,9 @@ export const createCategory = async (req, res) =>{
         }
 
         const sql = 'INSERT INTO categories(name_category, create_date) VALUES (?,?)'
-        const result = await pool.execute(sql, [nameCategory,todayDate])
+        const result = await pool.execute(sql, [nameCategory, todayDate])
 
-        if (!result[0].insertId) {
+        if (result[0].insertId <= 0) {
             return res.status(500).json({ message: 'Error when creating the category' })
         }
         res.status(201).json({ message: 'Created category'})
@@ -83,7 +82,7 @@ export const updateCategory = async (req, res) =>{
         const {name_category: nameCategory} = req.body
         const todayDate = new Date().toLocaleDateString('en-ZA');       
         
-        if(!role  || !idc){
+        if(isNaN(role)  || isNaN(idc)){
             return res.status(404).json({ message: 'Sorry, Not Found...'})
         }
 
@@ -98,9 +97,8 @@ export const updateCategory = async (req, res) =>{
         const sql = 'UPDATE categories SET name_category = ?, create_date = ? WHERE id_category = ?'
         const result = await pool.execute(sql, [nameCategory, todayDate, idc])
 
-        if (!result[0].insertId) {
-            console.log(result[0].insertId);
-            return res.status(500).json({ message: 'Error when updating the category' })
+        if (result[0].affectedRows <= 0) {
+            return res.status(500).json({ message: 'Error updating category that does not exist' })
         }
 
         res.status(201).json({ message: 'Update the category'})
@@ -113,16 +111,19 @@ export const deleteCategory = async (req, res) =>{
     try {
         const { role, idc } = req.params
 
-        if(!idc || !role){
+        if(isNaN(role)  || isNaN(idc)){
             return res.status(404).json({ message: 'Sorry, Not Found...'})
         }
-        if(role != '1' ){
+        if(role != 1 ){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
 
         const sql = 'DELETE FROM categories WHERE id_category= ?'
-        await pool.execute(sql, [idc])
+        const result = await pool.execute(sql, [idc])
 
+        if(result[0].affectedRows <= 0){
+            return res.status(500).json({ message: 'Error when deleted category' })
+        }
         res.status(201).json({ message: 'Delete the category'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
