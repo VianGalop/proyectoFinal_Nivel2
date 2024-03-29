@@ -7,17 +7,16 @@ export const checkUser = async (req,res) =>{
         // console.log(username, password);
 
         if(!username || !password){
-            return res.status(400).json({message:'Error, incorrect data...'})
+            return res.status(400).json({message:'Error! missing data...'})
         }
 
-        const result = await pool.execute('SELECT id_user,role_type FROM users WHERE username =? AND password = ?',[username,password])
+        const result = await pool.execute('SELECT id_user,name, last_name, role_type FROM users WHERE username =? AND password = ?',[username,password])
 
         if(result[0].length === 0){
-            return res.status(511).json({message:'Sorry, You can not access..'})
+            return res.status(511).json({message:'Sorry, You can not access.. Verify your username and password'})
         }
-        // console.log(result[0][0].id_user);
-        // console.log(result[0][0].role_type);
-        res.status(200).json({message:`Open Session... Bienvenido: ${username}`})
+        const dato = result[0][0].name
+        res.status(200).json({message:`Open Session... Bienvenido: ${dato}`})
    } catch (error) {
         console.log(error)
         res.status(500).json({message:'Not Found'})

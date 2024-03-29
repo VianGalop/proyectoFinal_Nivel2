@@ -4,7 +4,7 @@ import { pool } from '../config/db.js'
 
 export const getImagenName = async (req, res) => {
   try {
-    const [result] = await pool.query('SELECT profile_picture FROM users')
+    const [result] = await pool.query('SELECT picture FROM all_users')
     const imageNames = result.map(row => row.imagen)
     const response = { imageNames }
     res.json(response)
@@ -30,16 +30,16 @@ export const getImagenByName = (req, res) => {
   }
 }
 
-export const uploadImg = async (req, res, filename) => {
+export const subirImagen = async (req, res, filename) => {
   // const { filename } = req.file
   // res.json({ message: 'Imagen subida exitosamente' })
   try {
-    const { picture } = req.file
-    if (!picture) {
+    const { filename } = req.file
+    if (!filename) {
       return res.status(400).json({ message: 'Falta datos' })
     }
 
-    const [result] = await pool.query('INSERT INTO users(profile_picture) VALUES (?)', [picture])
+    const [result] = await pool.query('INSERT INTO all_users(picture) VALUES (?)', [filename])
     if (result) {
       res.json({ message: 'Archivo subido corectamente' })
     } else {
@@ -50,9 +50,9 @@ export const uploadImg = async (req, res, filename) => {
   }
 }
 
-export const deleteImg = (req, res) => {
+export const borradoImg = (req, res) => {
   try {
-    const { picture } = req.params
+    const { filename } = req.params
     const absolutePath = path.resolve(`./uploads/${filename}`)
 
     fs.access(absolutePath, fs.constants.F_OK, (err) => {
@@ -61,8 +61,8 @@ export const deleteImg = (req, res) => {
       } else {
         res.sendFile(absolutePath)
         // Borrado archivo
-        fs.unlinkSync(absolutePath)
-        //res.status(200).json({ message: 'Imagen Borrado' })
+        // fs.unlinkSync(absolutePath)
+        // res.status(200).json({ message: 'Imagen Borrado' })
       }
     })
   } catch (error) {

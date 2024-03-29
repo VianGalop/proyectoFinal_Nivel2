@@ -12,37 +12,39 @@ export const createUser = async (req,res) => {
                 date_birthday:birthday, 
                 gender
             } = req.body
-        const { picture }  = req.file
+        const { filename }  = req.file
 
+        if(isNaN(role)){
+            return res.status(404).json({ message: 'Sorry, Not Found...'})
+        }
         // verificamos esten todos los datos del formulario
         if(
-            !role ||
             !name || 
             !lastName || 
             !email?.includes('@') || 
             !username || 
             !password || 
-            !picture || 
+            !filename || 
             !birthday || 
             !gender
         ){
             return res.status(400).json({ message: 'Error! missing data...' })
         }
 
-          // Ingresar los datos a la db
+        // Ingresar los datos a la db
         const sql = 'INSERT INTO users (name, last_name, email, username, password, profile_picture, date_birthday, gender, role_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        const [result] = await pool.execute(sql,[name, lastName, email, username, password, picture, birthday, gender, role])
+        const result = await pool.execute(sql,[name, lastName, email, username, password, filename, birthday, gender, role])
 
         // Validar el id del registro insertado
-        if (!result.insertId) {
+        if (result[0].insertId <= 0) {
             return res.status(500).json({ message: 'Error when creating the user' })
         }
   
          // Traer el nombre del usuario insertado
-        const [user] = await pool.execute('SELECT username FROM users WHERE id_user = ?', [result.insertId])
+        const user = await pool.execute('SELECT username FROM users WHERE id_user = ?', [result[0].insertId])
   
-      // Mensaje al cliente
-      res.status(201).json({ message: 'Created user... Welcomen', user })
+        // Mensaje al cliente
+        res.status(201).json({ message: 'Created user... Welcomen', user })
 
     } catch (error) {
         console.log(error)
@@ -60,8 +62,9 @@ export const createUser = async (req,res) => {
 
 export const readUsers = async (req, res) =>{
     try {
-        const {role} = req.params.role
-        if(!role || role != 1){
+        const {role} = req.params
+
+        if(isNaN(role) || role != 1){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
 
