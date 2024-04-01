@@ -17,7 +17,7 @@ router.delete('/:filename', borradoImg)
 
 // Ruta para manejar la carga de archivos cuando no es una imagen
 // single(nombreCampoForm)
-router.post('/upload', uploadImagen.single('picture'), handleError, subirImagen)
+router.post('/upload', uploadImagen.single('profile'), handleError, subirImagen)
 
 // Mostrar la imagen
 router.get('/:filename', getImagenByName)

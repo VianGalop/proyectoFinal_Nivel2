@@ -61,8 +61,8 @@ export const borradoImg = (req, res) => {
       } else {
         res.sendFile(absolutePath)
         // Borrado archivo
-        // fs.unlinkSync(absolutePath)
-        // res.status(200).json({ message: 'Imagen Borrado' })
+        fs.unlinkSync(absolutePath)
+        res.status(200).json({ message: 'Imagen Borrado' })
       }
     })
   } catch (error) {
