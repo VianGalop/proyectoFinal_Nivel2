@@ -10,9 +10,9 @@ export const checkUser = async (req,res) =>{
             return res.status(400).json({message:'Error! missing data...'})
         }
 
-        const result = await pool.execute('SELECT id_user,name, last_name, role_type FROM users WHERE username =? AND password = ?',[username,password])
+        const [result] = await pool.execute('SELECT id_user,name, last_name, role_type FROM users WHERE username =? AND password = ?',[username,password])
 
-        if(result[0].length === 0){
+        if(result.length <= 0){
             return res.status(511).json({message:'Sorry, You can not access.. Verify your username and password'})
         }
         const dato = result[0][0].name

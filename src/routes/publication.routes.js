@@ -1,37 +1,32 @@
 import Router from "express";
-import { createPublication, deletePublication, getPublicationByTitle, getPublications, updatePublication } from "../controllers/publication.controller.js";
+import { createPublication, deletePublication, getPublicationByTitle, getPublications, getPublicationByCategory, updatePublication } from "../controllers/publication.controller.js";
 
 const router = Router();
 
-/*
-Lista de Publicaciones
-GET role/idUser/publications
-*/
-router.get('/:role/:idUser/publications', getPublications);
+
+/* Lista de Publicaciones */
+router.get('/:idUser/publications', getPublications);
 
 
-/*
-Buscar por Titulo publicacion
-GET role/idUser/title
-*/
-router.get('/:role/:idUser/title/:nameTitle', getPublicationByTitle);
+/* Filtar Publicaciones por categoria */
+router.get('/:idUser/category/:idC', getPublicationByCategory)
 
-/*
-Crear una publicacion
-POST role/idUser/create
-*/
-router.post('/:role/:idUser/create', createPublication);
 
-/*
-Actualizar publicacion
-PATCH role/idUser/update/:idPub
-*/
-router.patch('/:role/:idUser/update/:idPub', updatePublication);
+/* Buscar por Titulo publicacion */
+router.get('/:idUser/title/:nameTitle', getPublicationByTitle);
+
+
+/* Crear una publicacion */
+router.post('/:idUser/create', createPublication);
+
+
+/* Actualizar publicacion */
+router.patch('/:idUser/update/:idPub', updatePublication);
 
 /* 
 Borrar publicacion
 DELETE role/idUser/delete/:idPub
 */
-router.delete('/:role/:idUser/delete/:idPub',deletePublication);
+router.delete('/:idUser/delete/:idPub', deletePublication);
 
 export default router

@@ -1,6 +1,7 @@
 import { pool } from '../config/db.js'
 
 export const getCategories = async (req, res) =>{
+    
     try {
         // Verificar que es usuario_administrador
         const { role } = req.params

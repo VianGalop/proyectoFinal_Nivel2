@@ -4,36 +4,18 @@ import { uploadImagen } from '../config/multer.js'
 
 const router = Router()
 
-/* router.get('/all', getUsers)
-router.post('/create', uploadImagen.single('picture'), createUser)
-router.get('/:id', getUserById)
-router.patch('/update/:id', uploadImagen.single('picture'), getUpdate)
-router.delete('/delete/:id', deleteUser)
- */
-
-/*
-Ver todos los usuarios (administrador)
-GET  blog/role/read
-*/
+/* Ver todos los usuarios (administrador) */
 router.get('/:role/read', readUsers)
 
-/*
-Crear un perfil Usuario
-POST blog/role/create
-*/
+
+/* Crear un perfil Usuario*/
 router.post('/:role/create', uploadImagen.single('profile') ,createUser);
 
-/*
-Actualiar datos del usuario
-PATCH blog/role/update
-*/
+/*Actualiar datos del usuario*/
 router.patch('/:role/update/:id',uploadImagen.single('profile'), updateUser);
 
 
-/*
-Elminar el perfil
-DELETE blog/role/delete
-*/
+/*Eliminar el perfil*/
 router.delete('/:role/delete/:id', deleteUser)
 
 

@@ -1,5 +1,6 @@
 import {pool} from '../config/db.js'
 
+
 export const getCommentsByPublication = async (req, res) =>{
     try {
         const { idUser, idPub } = req.params
