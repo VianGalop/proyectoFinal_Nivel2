@@ -4,10 +4,21 @@ export const getCategories = async (req, res) =>{
     
     try {
         // Verificar que es usuario_administrador
-        const { role } = req.params
-        if(isNaN(role) || role != 1){
+        const { idUser } = req.params
+
+        if(isNaN(idUser)){
+            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+        }
+
+        //verifica el rol que tiene.
+        const rol = await pool.execute('SELECT role_type FROM users WHERE id_user = ?', [idUser])
+        if(rol.length <= 0){
+            return res.status(401).json({message:'No user was found'})
+        }
+        if( rol[0] != 1){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
+        
         // Consulta a DB
         const [rows] = await pool.execute('SELECT * FROM categories')
 
@@ -27,13 +38,19 @@ export const getCategories = async (req, res) =>{
 export const getByCategory = async (req, res) =>{
     try {
         // Verificar que es usuario_administrador
-        const { role, idc } = req.params
+        const { idUser, idc } = req.params
 
-        if(!role || role != 1){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
+        if(isNaN(idUser) || isNaN(idc)){
+            return res.status(400).json({ message: 'Sorry, the route was not found...'})
         }
-        if(!idc){
-            return res.status(402).json({message:'Category Not Found'})
+
+        //verifica el rol que tiene.
+        const rol = await pool.execute('SELECT role_type FROM users WHERE id_user = ?', [idUser])
+        if(rol.length <= 0){
+            return res.status(401).json({message:'No user was found'})
+        }
+        if( rol[0] != 1){
+            return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
 
         // Consulta a DB
@@ -53,14 +70,23 @@ export const getByCategory = async (req, res) =>{
 
 export const createCategory = async (req, res) =>{
     try {
-        const { role } = req.params
+        const { idUser } = req.params
         const {name_category: nameCategory} = req.body
         const todayDate = new Date().toLocaleDateString('en-ZA');
         
-        if(isNaN(role) || role != 1){
+        if(isNaN(idUser)){
+            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+        }
+
+        //verifica el rol que tiene.
+        const rol = await pool.execute('SELECT role_type FROM users WHERE id_user = ?', [idUser])
+        if(rol.length <= 0){
+            return res.status(401).json({message:'No user was found'})
+        }
+        if( rol[0] != 1){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
-        
+
         if(!nameCategory){
             return res.status(400).json({ message: 'Error! missing data...' })
         }
@@ -72,6 +98,7 @@ export const createCategory = async (req, res) =>{
             return res.status(500).json({ message: 'Error when creating the category' })
         }
         res.status(201).json({ message: 'Created category'})
+
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }
@@ -79,15 +106,20 @@ export const createCategory = async (req, res) =>{
 
 export const updateCategory = async (req, res) =>{
     try {
-        const { role, idc } = req.params
+        const { idUser, idc } = req.params
         const {name_category: nameCategory} = req.body
         const todayDate = new Date().toLocaleDateString('en-ZA');       
         
-        if(isNaN(role)  || isNaN(idc)){
-            return res.status(404).json({ message: 'Sorry, Not Found...'})
+        if(isNaN(idUser)  || isNaN(idc)){
+            return res.status(400).json({ message: 'Sorry, the route was not found...'})
         }
 
-        if(role != 1 ){
+        //verifica el rol que tiene.
+        const rol = await pool.execute('SELECT role_type FROM users WHERE id_user = ?', [idUser])
+        if(rol.length <= 0){
+            return res.status(401).json({message:'No user was found'})
+        }
+        if( rol[0] != 1){
             return res.status(400).json({ message: 'Sorry, You can not access..'})
         }
 
@@ -110,14 +142,20 @@ export const updateCategory = async (req, res) =>{
 
 export const deleteCategory = async (req, res) =>{
     try {
-        const { role, idc } = req.params
+        const { idUser, idc } = req.params
 
-        if(isNaN(role)  || isNaN(idc)){
-            return res.status(404).json({ message: 'Sorry, Not Found...'})
+        if(isNaN(idUser)  || isNaN(idc)){
+            return res.status(400).json({ message: 'Sorry, the route was not found...'})
         }
-        if(role != 1 ){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
-        }
+
+       //verifica el rol que tiene.
+       const rol = await pool.execute('SELECT role_type FROM users WHERE id_user = ?', [idUser])
+       if(rol.length <= 0){
+           return res.status(401).json({message:'No user was found'})
+       }
+       if( rol[0] != 1){
+           return res.status(400).json({ message: 'Sorry, You can not access..'})
+       }
 
         const sql = 'DELETE FROM categories WHERE id_category= ?'
         const result = await pool.execute(sql, [idc])
@@ -130,3 +168,4 @@ export const deleteCategory = async (req, res) =>{
         return res.status(500).json({ message: 'Something goes wrong' })
     }
 }
+

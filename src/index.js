@@ -20,7 +20,7 @@ app.use(express.json())
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Blogging' })
 })
-  
+
 
 app.use('/blogg/login', session)
 app.use('/blogg/users', userRoutes)
@@ -29,4 +29,6 @@ app.use('/blogg/publications', publication)
 app.use('/blogg/comments', comment)
 app.use('/blogg/categories', catego)
 
-app.listen(3000, ()=> console.log("Server running http://localhost:3000"))
+app.listen(3000, ()=>{
+    console.log("Server running http://localhost:3000")
+}) 

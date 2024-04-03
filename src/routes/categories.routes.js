@@ -1,38 +1,29 @@
 import { Router } from 'express'
 import { createCategory, deleteCategory, getByCategory, getCategories, updateCategory } from '../controllers/categories.controller.js';
 
+
 const router = Router(); 
 
-/*
-Lista de Categorioas (Admin)
-GET role/idUser/publications
-*/
-router.get('/:role/categories', getCategories);
 
-/*
-Buscar por categoria (admin)
-Cuantas publicaciones tengo en X categoria
-GET role/idUser/category
-*/
-router.get('/:role/categories/:idc', getByCategory); 
+/* Lista de Categorioas (Admin) */
+router.get('/:idUser/categories', getCategories);
 
-/*
-Crear una categoria  (Admin)
-POST role/idUser/create
-*/
-router.post('/:role/create', createCategory);
 
-/*
-Actualizar categoria (Admin)
-PATCH role/idUser/update/:idCat
-*/
-router.patch('/:role/update/:idc',updateCategory);
+/* Buscar por categoria (admin)
+Cuantas publicaciones tengo en X categoria */
+router.get('/:idUser/categories/:idc', getByCategory); 
 
-/* 
-Borrar categoria (Admin)
-DELETE role/idUser/delete/:idCat
-*/
-router.delete('/:role/delete/:idc',deleteCategory);
+
+/* Crear una categoria  (Admin) */
+router.post('/:idUser/create', createCategory);
+
+
+/* Actualizar categoria (Admin) */
+router.patch('/:idUser/update/:idc',updateCategory);
+
+
+/* Borrar categoria (Admin) */
+router.delete('/:idUser/delete/:idc',deleteCategory);
 
 
 export default router;
