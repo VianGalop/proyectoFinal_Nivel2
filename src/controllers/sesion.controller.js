@@ -15,7 +15,8 @@ export const checkUser = async (req,res) =>{
         if(result.length <= 0){
             return res.status(511).json({message:'Sorry, You can not access.. Verify your username and password'})
         }
-        const dato = result[0][0].name
+        const dato = result[0].name
+
         res.status(200).json({message:`Open Session... Bienvenido: ${dato}`})
    } catch (error) {
         console.log(error)

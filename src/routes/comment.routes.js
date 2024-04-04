@@ -5,7 +5,7 @@ import { createComment, deleteComment, getCommentsByPublication, updateComment }
 const router = Router();
 
 
-/* Lista de Comentarios de una publicacion X */
+/* Lista de Comentarios de una X publicacion */
 router.get('/:idUser/:idPub/comments', getCommentsByPublication);
 
 

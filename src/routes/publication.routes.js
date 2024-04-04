@@ -4,7 +4,7 @@ import { createPublication, deletePublication, getPublicationByTitle, getPublica
 const router = Router();
 
 
-/* Lista de Publicaciones */
+/* Lista de Publicaciones un usuario */
 router.get('/:idUser/publications', getPublications);
 
 

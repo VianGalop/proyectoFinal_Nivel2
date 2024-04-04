@@ -1,11 +1,11 @@
 import {pool} from '../config/db.js'
-
+import {checkRol} from './checker.js'
 
 export const getCommentsByPublication = async (req, res) =>{
     try {
         const { idUser, idPub } = req.params
         if(isNaN(idUser) || isNaN(idPub)){
-            return res.status(500).json({message:'wrong route'})
+            return res.status(500).json({message:'Sorry, the route was not found...'})
         }
 
         // verificamos exista la publicacion
@@ -36,7 +36,7 @@ export const createComment = async (req, res)=>{
         const todayDate = new Date().toLocaleDateString('en-ZA');
 
         if(isNaN(idUser) || isNaN(idPub)){
-            return res.status(500).json({message:'wrong route'})
+            return res.status(500).json({message:'Sorry, the route was not found...'})
         }
 
         //verifica si es usuario existe.
@@ -62,7 +62,7 @@ export const createComment = async (req, res)=>{
         const result = await pool.execute(sql,[content,todayDate,idUser])
 
         if(result[0].insertId <= 0){
-            return res.status(500).json({ message: 'Error when creating the comment' })
+            return res.status(500).json({ message: 'Error, when creating the comment' })
         }
 
         // Ligamos el comentario a la publicacion mediante la tabla pívote
@@ -85,34 +85,31 @@ export const updateComment = async (req, res) =>{
         const { idUser, idCom } = req.params
         const { content } = req.body
         const todayDate = new Date().toLocaleDateString('en-ZA');
-        const sql = ''
+        let sql = ''
+        let datos = []
 
         if(isNaN(idUser) || isNaN(idCom)){
-            return res.status(500).json({message:'wrong route'})
+            return res.status(500).json({message:'Sorry, the route was not found...'})
         }
-
         if(!content){
             return res.status(400).json({ message: 'Error! missing data...' })
         }
-
+        
         //verifica el rol que tiene.
-        const rol = await pool.execute('SELECT role_type FROM users WHERE id_user = ?', [idUser])
-        if(rol.length <= 0){
-            return res.status(401).json({message:'No user was found'})
-        }
-
-        // Verificamos que es el usuario que creo el comentario es quien actualiza
-        if( rol[0] != 1){
+        const isAdmin = await checkRol(idUser,res)
+        if(!isAdmin){// Verificamos que es el usuario que creo el comentario es quien actualiza
             sql = 'UPDATE comments SET content = ? , comment_date = ? WHERE id_comment = ? AND user_id = ?'
-        }else{ // Caso contrario el que modifica es el comentario es el administrador
+            datos = [content, todayDate, idCom, idUser]
+        }else{// Caso contrario el que modifica es el comentario es el administrador
             sql = 'UPDATE comments SET content = ? , comment_date = ? WHERE id_comment = ?'
+            datos = [content, todayDate, idCom]
         }
 
         // Actualizadmos  el comentario
-        const result = await pool.execute(sql,[content, todayDate, idCom, idUser])
+        const result = await pool.execute(sql, datos)
 
         if(result[0].affectedRows <= 0){
-            return res.status(500).json({ message: 'Error updating comment that does not exist' })
+            return res.status(500).json({ message: 'Error, updating comment that does not exist' })
         }
 
         res.status(201).json({ message: 'Updated  a comment'})
@@ -125,11 +122,11 @@ export const deleteComment = async (req, res) =>{
     try {
         const { idUser, idCom } = req.params
         const todayDate = new Date().toLocaleDateString('en-ZA');
-        const sql = ''
-        const datos = null
+        let sql = ''
+        let datos = []
         
         if( isNaN(idUser) || isNaN(idCom)){
-            return res.status(500).json({message:'wrong route'})
+            return res.status(500).json({message:'Sorry, the route was not found...'})
         }
 
         //verifica el rol que tiene.
@@ -139,10 +136,11 @@ export const deleteComment = async (req, res) =>{
         }
 
         // Verificamos que es el usuario que creo el comentario es quien elimina
-        if( rol[0] != 1){
+        const isAdmin = await checkRol(idUser,res)
+        if(!isAdmin){// Verificamos que es el usuario que creo el comentario es quien elimina
             sql = 'DELETE FROM comments WHERE id_comment = ? AND user_id = ?'
             datos = [idCom,idUser]
-        }else{ // Caso contrario el que elimina es el comentario es el administrador
+        }else{ // Caso contrario el que elimina el comentario es el administrador
             sql = 'DELETE FROM comments WHERE id_comment = ?'
             datos = [idCom]
         }
@@ -151,7 +149,7 @@ export const deleteComment = async (req, res) =>{
         const result = await pool.execute(sql, datos)
 
         if(result[0].affectedRows <= 0){
-            return res.status(500).json({ message: 'Error when deleted comment' })
+            return res.status(500).json({ message: 'Error, when deleted comment' })
         }
 
         res.status(201).json({ message: 'Deleted a comment'})
