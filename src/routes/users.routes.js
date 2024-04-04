@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { createUser, deleteUser, readUsers, updateUser } from "../controllers/users.controller.js";
-import { uploadImagen } from '../config/multer.js'
 
 const router = Router()
 
@@ -9,14 +8,14 @@ router.get('/:idUser/read', readUsers)
 
 
 /* Crear un perfil Usuario*/
-router.post('/:idUser/create', uploadImagen.single('profile') ,createUser);
+router.post('/:idUser/create', createUser);
 
 /*Actualiar datos del usuario*/
-router.patch('/:idUser/update/',uploadImagen.single('profile'), updateUser);
+router.patch('/:idUser/update/:idOtro', updateUser);
 
 
 /*Eliminar el perfil*/
-router.delete('/:idUser/delete/', deleteUser)
+router.delete('/:idUser/delete/:idOtro', deleteUser)
 
 
 export default router

@@ -1,5 +1,4 @@
 import express from "express";
-import profile_picture from './routes/picture.routes.js'
 import userRoutes from './routes/users.routes.js'
 import session from './routes/roles.routes.js'
 import catego from './routes/categories.routes.js'
@@ -24,7 +23,6 @@ app.get('/', (req, res) => {
 
 app.use('/blogg/login', session)
 app.use('/blogg/users', userRoutes)
-// app.use('/blogg/profile', profile_picture)
 app.use('/blogg/publications', publication)
 app.use('/blogg/comments', comment)
 app.use('/blogg/categories', catego)
