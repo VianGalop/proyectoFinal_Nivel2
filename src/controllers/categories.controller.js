@@ -32,7 +32,7 @@ export const getCategories = async (req, res) =>{
     }
 }
 
-//Que publicaciones hay en X Categoria
+//Que publicaciones hay en X Categoria cualquier usuario
 export const getByCategory = async (req, res) =>{
     try {
         // Verificar que es usuario_administrador

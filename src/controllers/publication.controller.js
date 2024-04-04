@@ -1,7 +1,7 @@
 import {pool} from '../config/db.js'
-import {checkRol} from './checker.js'
+import { checkRol } from './checker.js'
 
-// usuario  -> ver sus publicaciones o la otros usuarios
+// usuario  -> ver sus publicaciones o la otros usuarios (por nombre usuario)
 // admini -> ver todas las publicaciones 
 export const getPublications = async (req,res) =>{
     try {
@@ -17,7 +17,7 @@ export const getPublications = async (req,res) =>{
 
         //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
-
+        console.log(isAdmin);
         // Es el admin y quiere quiere todas las publicaciones
         if(isAdmin){
             sql = 'SELECT * FROM publications'
@@ -46,7 +46,8 @@ export const getPublications = async (req,res) =>{
     }
 }
 
-
+// admin -> ver Publicaciones de x Categoria
+//user -> puede ver las categorias de sus propias publicaciones
 export const  getPublicationByCategory = async (req, res) =>{
     try {
         // Verificar que es usuario_administrador
@@ -96,12 +97,11 @@ export const getPublicationByTitle = async (req, res) =>{
         
           //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
-
         //
-        if(isAdmin){ // pripias publicaciones
+        if(isAdmin){ // todas las publicaciones con el X titulo
             sql = 'SELECT * FROM publications p WHERE p.title = ?';
             datos = [nameTitle]            
-        }else if(username.length > 0){
+        }else if(username.length > 0){ // quiere ver otras publicaciones de otros usuarios con X titulo
             console.log(username);
             const consulta = await pool.execute('SELECT id_user FROM users WHERE username = ?',[username])
             if(consulta.length <= 0){
@@ -109,7 +109,7 @@ export const getPublicationByTitle = async (req, res) =>{
             }
             sql = 'SELECT p.title, p.content, p.publication_date FROM publications p WHERE p.user_id = ? AND p.title = ?';
             datos = [consulta[0][0].id_user, nameTitle] 
-        }else{ // es el admin
+        }else{ // Solo ver sus propias publicaciones con X titulo
             sql = 'SELECT p.title, p.content, p.publication_date FROM publications p WHERE p.user_id = ? AND p.title = ?';
             datos = [idUser, nameTitle]
             
@@ -136,7 +136,7 @@ export const createPublication = async (req,res)=>{
         const publicationDate = new Date().toLocaleDateString('en-ZA');
 
         if( isNaN(idUser)){
-            return res.status(404).json({ message: 'Sorry, Not Found...'})
+            return res.status(404).json({ message: 'Sorry, the route was not found...'})
         }
 
         // verificamos esten todos los datos del formulario
@@ -144,35 +144,48 @@ export const createPublication = async (req,res)=>{
             return res.status(400).json({ message: 'Error! missing data...' })
         }
 
+        // verificar que las categorias existan
+        for (let i = 0; i < arrayCategories.length; i++) {
+            const sql2 = 'SELECT * FROM categories WHERE id_category = ?'
+            const [intermedi] = await pool.execute(sql2,[ arrayCategories[i]])
+
+            if(intermedi.length <= 0){
+                return res.status(400).json({ message :'The indicated category does not exist, check your data....'})
+            }
+        } 
+
         // Ingresar los datos a la db
         const sql = 'INSERT INTO publications (title, content,  publication_date, user_id) VALUES ( ?, ?, ?, ?)'
         const [result] = await pool.execute(sql,[title, content, publicationDate, idUser])
 
         // Validar el id del registro insertado
-        if (result[0].insertId <= 0) {
+        if (result.insertId <= 0) {
             return res.status(500).json({ message: 'Error when creating the publication' })
         }
 
-  
-        // ligamos la publicacion a una categoria mediante la tabla pívote
-        arrayCategories.forEach(async idCat => {
+        // ligamos la publicacion a cada categoria mediante la tabla pívote
+        for (let i = 0; i < arrayCategories.length; i++) {
             const sql2 = 'INSERT INTO category_publication(category_id, publication_id) VALUES(?,?)'
-            const [intermedi] = await pool.execute(sql2,[ idCat, result[0].insertId])
+            const [intermedi] = await pool.execute(sql2,[ arrayCategories[i], result.insertId])
 
-            if(intermedi[0].insertId <= 0){
+            if(intermedi.insertId <= 0){
                 return res.status(500).json({ message: 'Error posting your category' })
             }
-        });      
+        }     
         // Mensaje al cliente
         res.status(201).json({ message: 'Created publication... ' })
 
     } catch (error) {
         console.log(error)
+        if (error?.errno === 1452) {
+            return res.status(400).json({ message :'The indicated category does not exist, check your data....'})
+        } 
+          
         return res.status(500).json({ message: 'Something goes wrong' })
     }
 } 
 
-
+//No permite cambiar de categoria
 export const updatePublication = async (req,res) =>{
     try {
         const { idUser, idPub} = req.params

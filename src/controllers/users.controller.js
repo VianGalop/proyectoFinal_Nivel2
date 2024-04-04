@@ -98,13 +98,12 @@ export const createUser = async (req,res) => {
 }
 
 
-
+//HAcer los cambios pide verificacion de credenciales
 export const updateUser = async (req,res) =>{
     try {
         const { idUser,idOtro } = req.params
+        const { usernamePass,passwordPass } = req.body
         const { 
-            usernamePass, 
-            passwordPass, 
             name, 
             last_name: lastName, 
             email, 
@@ -134,26 +133,25 @@ export const updateUser = async (req,res) =>{
         }
         
         // confirmacion de cambio de datos 
-        const [user] = await pool.execute('SELECT * FROM users WHERE username = ? AND password= ?',[usernamePass, passwordPass])
+        const [user] = await pool.execute('SELECT * FROM users WHERE username = ? AND password = ?',[usernamePass, passwordPass])
 
-        if(user.length <= 0){
-            return res.status(511).json({message:'Sorry, You can not access.. Verify your username and password'})
+        if(user.length <= 0 || user[0].id_user !=idUser){
+            return res.status(511).json({message:'Sorry, Verify your username and password... '})
         }
 
+
         // no es el usuario ni el administrador.
-          // no es el usuario ni el administrador.
           const isAdmin = await checkRol(idUser,res)
-
-          if(user[0].id_user != idUser && !isAdmin){
-              return res.status(400).json({ message: 'Sorry, You can not access..'})
-
-          }else if(isAdmin){
+          if(isAdmin){
               if(isNaN(idOtro)){ //Eres el administrador
-                  return res.status(400).json({message: 'You have not indicated the user to delete' })
+                  return res.status(400).json({message: 'You have not indicated the user to updated' })
               }
               sql = 'UPDATE users SET name = ?, last_name = ?, email = ?,  username = ?, date_birthday = ?, gender = ? WHERE id_user = ?'
               datos =[name, lastName, email, username, birthday,gender,idOtro]
           }else{ // Actualizar sus propios datos
+            if(idOtro > 0){
+                return res.status(500).json({message: 'You can´t update' })
+            }
              sql = 'UPDATE users SET name = ?, last_name = ?, email = ?, username = ?, password = ?, date_birthday = ?, gender = ? WHERE id_user = ?'
              datos = [name, lastName, email, username, password, birthday, gender,idUser]
           }
@@ -178,7 +176,8 @@ export const updateUser = async (req,res) =>{
     }
 }
 
-// Borrar las publicaciones asociadas a X usuario ??? //PENDIENTE
+// Borrar las publicaciones asociadas a X usuario
+// Debe derificar que si va a borrar con su username y password 
 export const deleteUser = async (req,res) =>{
     try {
         const { idUser, idOtro } = req.params
@@ -196,15 +195,14 @@ export const deleteUser = async (req,res) =>{
          // confirmacion de eliminar el usuario
          const [user] = await pool.execute('SELECT * FROM users WHERE username = ? AND password= ?',[username, password])
 
-         if(user.length <= 0){
-             return res.status(511).json({message:'Sorry, You can not access.. Verify your username and password'})
+         if(user.length <= 0 || user[0].id_user !=idUser){
+             return res.status(511).json({message:'Sorry, Verify your username and password... '})
          }
  
          // no es el usuario ni el administrador.
         const isAdmin = await checkRol(idUser,res)
-        if(user[0].id_user != idUser && !isAdmin){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
-        }else if(isAdmin){
+        console.log(isAdmin);
+        if(isAdmin){
             if(idOtro <= 0){ //Eres el administrador y quieres eliminar un usuario
                 return res.status(400).json({message: 'You have not indicated the user to delete' })
             }
