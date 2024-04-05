@@ -89,7 +89,7 @@ export const updateComment = async (req, res) =>{
         let datos = []
 
         if(isNaN(idUser) || isNaN(idCom)){
-            return res.status(500).json({message:'Sorry, the route was not found...'})
+            return res.status(404).json({message:'Sorry, the route was not found...'})
         }
         if(!content){
             return res.status(400).json({ message: 'Error! missing data...' })
@@ -109,10 +109,10 @@ export const updateComment = async (req, res) =>{
         const result = await pool.execute(sql, datos)
 
         if(result[0].affectedRows <= 0){
-            return res.status(500).json({ message: 'Error, updating comment that does not exist' })
+            return res.status(501).json({ message: 'Error, updating comment that does not exist' })
         }
 
-        res.status(201).json({ message: 'Updated  a comment'})
+        res.status(200).json({ message: 'Updated  a comment'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }
@@ -126,7 +126,7 @@ export const deleteComment = async (req, res) =>{
         let datos = []
         
         if( isNaN(idUser) || isNaN(idCom)){
-            return res.status(500).json({message:'Sorry, the route was not found...'})
+            return res.status(404).json({message:'Sorry, the route was not found...'})
         }
 
         //verifica el rol que tiene.
@@ -149,10 +149,10 @@ export const deleteComment = async (req, res) =>{
         const result = await pool.execute(sql, datos)
 
         if(result[0].affectedRows <= 0){
-            return res.status(500).json({ message: 'Error, when deleted comment' })
+            return res.status(501).json({ message: 'Error, when deleted comment' })
         }
 
-        res.status(201).json({ message: 'Deleted a comment'})
+        res.status(200).json({ message: 'Deleted a comment'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }
