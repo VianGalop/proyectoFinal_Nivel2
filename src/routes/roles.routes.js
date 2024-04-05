@@ -6,3 +6,4 @@ const router = Router()
 router.get('/session', checkUser);
 
 export default router
+

@@ -17,7 +17,7 @@ export const checkUser = async (req,res) =>{
         }
         const dato = result[0].name
 
-        res.status(200).json({message:`Open Session... Bienvenido: ${dato}`})
+        res.status(200).json({message:`Open Session. Welcome ${dato}`})
    } catch (error) {
         console.log(error)
         res.status(500).json({message:'Not Found'})

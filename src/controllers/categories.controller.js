@@ -8,13 +8,13 @@ export const getCategories = async (req, res) =>{
         const { idUser } = req.params
 
         if(isNaN(idUser)){
-            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+            return res.status(404).json({ message: 'Sorry, the route was not found...'})
         }
 
         //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
         if(!isAdmin){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
+            return res.status(401).json({ message: 'Sorry, You can not access..'})
         }
         
         // Consulta a DB
@@ -22,7 +22,7 @@ export const getCategories = async (req, res) =>{
 
         // Verificar que haya datos
         if(rows.length <= 0){
-            return res.status(404).json({ message: 'Categories not found' })
+            return res.status(405).json({ message: 'Categories not found' })
         }
 
         // Envia la informacion.

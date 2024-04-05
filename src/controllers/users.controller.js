@@ -12,7 +12,7 @@ export const readUsers = async (req, res) =>{
         //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
         if(!isAdmin){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
+            return res.status(401).json({ message: 'Sorry, You can not access..'})
         }
 
         // Consulta a DB
@@ -72,7 +72,7 @@ export const createUser = async (req,res) => {
 
         // Validar el id del registro insertado
         if (result[0].insertId <= 0) {
-            return res.status(500).json({ message: 'Error when creating the user' })
+            return res.status(501).json({ message: 'Error, when creating the user' })
         }
   
          // Traer el nombre del usuario insertado
@@ -89,7 +89,7 @@ export const createUser = async (req,res) => {
         // Validar si el error es por un username duplicado. Si es así, borrar la imagen y cambiar el mensaje y código de error.
         if (error?.errno === 1062) {
           message = 'Username already exists'
-          statusCode = 400
+          statusCode = 402
         }
         
         /* fs.unlinkSyn(`/uploads/${req.file.filename}`)  */ 
@@ -144,13 +144,13 @@ export const updateUser = async (req,res) =>{
           const isAdmin = await checkRol(idUser,res)
           if(isAdmin){
               if(isNaN(idOtro)){ //Eres el administrador
-                  return res.status(400).json({message: 'You have not indicated the user to updated' })
+                  return res.status(402).json({message: 'You have not indicated the user to updated' })
               }
               sql = 'UPDATE users SET name = ?, last_name = ?, email = ?,  username = ?, date_birthday = ?, gender = ? WHERE id_user = ?'
               datos =[name, lastName, email, username, birthday,gender,idOtro]
           }else{ // Actualizar sus propios datos
             if(idOtro > 0){
-                return res.status(500).json({message: 'You can´t update' })
+                return res.status(502).json({message: 'You can´t update' })
             }
              sql = 'UPDATE users SET name = ?, last_name = ?, email = ?, username = ?, password = ?, date_birthday = ?, gender = ? WHERE id_user = ?'
              datos = [name, lastName, email, username, password, birthday, gender,idUser]
@@ -159,10 +159,10 @@ export const updateUser = async (req,res) =>{
 
         const result =  await pool.execute(sql, datos)
         if (result[0].affectedRows <= 0 ) {
-            return res.status(500).json({ message: 'Error when updating the user' })
+            return res.status(501).json({ message: 'Error when updating the user' })
         }
 
-        res.status(201).json({ message: 'User successfully updated'})
+        res.status(200).json({ message: 'User successfully updated'})
     } catch (error) {
         console.log(error)
         let message = 'Something goes wrong'
@@ -204,13 +204,13 @@ export const deleteUser = async (req,res) =>{
         console.log(isAdmin);
         if(isAdmin){
             if(idOtro <= 0){ //Eres el administrador y quieres eliminar un usuario
-                return res.status(400).json({message: 'You have not indicated the user to delete' })
+                return res.status(402).json({message: 'You have not indicated the user to delete' })
             }
             sql = 'DELETE FROM users WHERE id_user = ?'
             datos =[idOtro]
         }else{ // Eliminar a si mismo.
             if(idOtro > 0){
-                return res.status(400).json({ message: 'Sorry, You can not access..'})
+                return res.status(401).json({ message: 'Sorry, You can not access..'})
             }
            sql = 'DELETE FROM users WHERE id_user = ?'
            datos = [idUser]
@@ -219,10 +219,10 @@ export const deleteUser = async (req,res) =>{
         const result = await pool.execute(sql, datos)
 
         if(result[0].affectedRows <= 0){
-            return res.status(500).json({ message: 'Error when deleted user' })
+            return res.status(501).json({ message: 'Error, when deleted user' })
         }
 
-        res.status(201).json({ message: 'User successfully deleted'})
+        res.status(200).json({ message: 'User successfully deleted'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }
