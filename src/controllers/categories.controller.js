@@ -45,7 +45,7 @@ export const getByCategory = async (req, res) =>{
         //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
         if(!isAdmin){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
+            return res.status(401).json({ message: 'Sorry, You can not access..'})
         }
 
         // Consulta a DB
@@ -72,13 +72,13 @@ export const createCategory = async (req, res) =>{
         const todayDate = new Date().toLocaleDateString('en-ZA');
         
         if(isNaN(idUser)){
-            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+            return res.status(404).json({ message: 'Sorry, the route was not found...'})
         }
 
         //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
         if(!isAdmin){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
+            return res.status(401).json({ message: 'Sorry, You can not access..'})
         }
 
         if(!nameCategory){
@@ -92,7 +92,7 @@ export const createCategory = async (req, res) =>{
             return res.status(500).json({ message: 'Error when creating the category' })
         } 
 
-        res.status(201).json({ message: 'Created category'})
+        res.status(200).json({ message: 'Created category'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }
@@ -106,13 +106,13 @@ export const updateCategory = async (req, res) =>{
         
         // verificar params
         if(isNaN(idUser) || isNaN(idc)){
-            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+            return res.status(404).json({ message: 'Sorry, the route was not found...'})
         }
 
         //verifica el rol que tiene.
         const isAdmin = await checkRol(idUser,res)
         if(!isAdmin){
-            return res.status(400).json({ message: 'Sorry, You can not access..'})
+            return res.status(401).json({ message: 'Sorry, You can not access..'})
         }
 
         if(!nameCategory){
@@ -123,10 +123,10 @@ export const updateCategory = async (req, res) =>{
         const result = await pool.execute(sql, [nameCategory, todayDate, idc])
 
         if (result[0].affectedRows <= 0) {
-            return res.status(500).json({ message: 'Error, updating category that does not exist' })
+            return res.status(501).json({ message: 'Error, updating category that does not exist' })
         }
 
-        res.status(201).json({ message: 'Update the category'})
+        res.status(200).json({ message: 'Update the category'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }
@@ -137,22 +137,22 @@ export const deleteCategory = async (req, res) =>{
         const { idUser, idc } = req.params
 
         if(isNaN(idUser)  || isNaN(idc)){
-            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+            return res.status(404).json({ message: 'Sorry, the route was not found...'})
         }
 
        //verifica el rol que tiene.
        const isAdmin = await checkRol(idUser,res)
        if(!isAdmin){
-           return res.status(400).json({ message: 'Sorry, You can not access..'})
+           return res.status(401).json({ message: 'Sorry, You can not access..'})
        }
 
         const sql = 'DELETE FROM categories WHERE id_category= ?'
         const result = await pool.execute(sql, [idc])
 
         if(result[0].affectedRows <= 0){
-            return res.status(500).json({ message: 'Error when deleted category' })
+            return res.status(501).json({ message: 'Error when deleted category' })
         }
-        res.status(201).json({ message: 'Delete the category'})
+        res.status(200).json({ message: 'Delete the category'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }

@@ -5,13 +5,13 @@ export const getCommentsByPublication = async (req, res) =>{
     try {
         const { idUser, idPub } = req.params
         if(isNaN(idUser) || isNaN(idPub)){
-            return res.status(500).json({message:'Sorry, the route was not found...'})
+            return res.status(404).json({message:'Sorry, the route was not found...'})
         }
 
         // verificamos exista la publicacion
         const [consult] = await pool.execute('SELECT * FROM publications WHERE id_publication = ?',[idPub])
         if(consult.length <= 0){
-            return res.status(404).json({ message: 'Publication not found' })
+            return res.status(503).json({ message: 'Publication not found' })
         }
         
         // VER LOS COMENTARIOS DE X PUBLICACIONES QUE USUARIO LA HIZO 
@@ -20,7 +20,7 @@ export const getCommentsByPublication = async (req, res) =>{
         const [rows] = await pool.execute(sql,[idPub,idUser])
 
         if(rows.length <= 0){
-            return res.status(404).json({ message: 'There are no comments in this publication' })
+            return res.status(403).json({ message: 'There are no comments in this publication' })
         }
         // Envia la informacion.
         res.json(rows)

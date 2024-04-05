@@ -25,7 +25,7 @@ export const getPublications = async (req,res) =>{
         }else if(username.length > 0){ // Quiere ver de las publicaciones de otros...
             const consulta = await pool.execute('SELECT id_user FROM users WHERE username = ?',[username])
             if(consulta.length === 0){
-                res.status(400).json({message:`The user ${username} was not found`})
+                res.status(502).json({message:`The user ${username} was not found`})
             }
             sql = 'SELECT title, content, publication_date FROM publications WHERE user_id = ?'
             datos = [consulta[0][0].id_user]
@@ -37,7 +37,7 @@ export const getPublications = async (req,res) =>{
         const [rows]  = await pool.execute(sql, datos)
         // Verificar que haya datos
         if(rows.length <= 0){
-            return res.status(404).json({ message: 'Publication not found' })
+            return res.status(405).json({ message: 'Publication not found' })
         }
         // Envia la informacion.
         res.json(rows)
@@ -75,7 +75,7 @@ export const  getPublicationByCategory = async (req, res) =>{
         const [rows] = await pool.execute(sql,datos)  
         // Verificar que haya datos
         if(rows.length <= 0 ){
-            return res.status(404).json({ message: 'No publications were found in that category' })
+            return res.status(405).json({ message: 'No publications were found in that category' })
         }
         res.json(rows)
     } catch (error) {
@@ -105,7 +105,7 @@ export const getPublicationByTitle = async (req, res) =>{
             console.log(username);
             const consulta = await pool.execute('SELECT id_user FROM users WHERE username = ?',[username])
             if(consulta.length <= 0){
-                res.status(400).json({message:`The user ${username} was not found`})
+                res.status(502).json({message:`The user ${username} was not found`})
             }
             sql = 'SELECT p.title, p.content, p.publication_date FROM publications p WHERE p.user_id = ? AND p.title = ?';
             datos = [consulta[0][0].id_user, nameTitle] 
@@ -119,7 +119,7 @@ export const getPublicationByTitle = async (req, res) =>{
 
         // Verificar que haya datos
         if(rows.length <= 0){
-            return res.status(404).json({ message: 'Publication not found' })
+            return res.status(405).json({ message: 'Publication not found' })
         }
         // Envia la informacion.
         res.json(rows)
@@ -150,7 +150,7 @@ export const createPublication = async (req,res)=>{
             const [intermedi] = await pool.execute(sql2,[ arrayCategories[i]])
 
             if(intermedi.length <= 0){
-                return res.status(400).json({ message :'The indicated category does not exist, check your data....'})
+                return res.status(502).json({ message :'The indicated category does not exist, check your data....'})
             }
         } 
 
@@ -160,7 +160,7 @@ export const createPublication = async (req,res)=>{
 
         // Validar el id del registro insertado
         if (result.insertId <= 0) {
-            return res.status(500).json({ message: 'Error when creating the publication' })
+            return res.status(501).json({ message: 'Error when creating the publication' })
         }
 
         // ligamos la publicacion a cada categoria mediante la tabla pívote
@@ -169,16 +169,16 @@ export const createPublication = async (req,res)=>{
             const [intermedi] = await pool.execute(sql2,[ arrayCategories[i], result.insertId])
 
             if(intermedi.insertId <= 0){
-                return res.status(500).json({ message: 'Error posting your category' })
+                return res.status(503).json({ message: 'Error, posting your category' })
             }
         }     
         // Mensaje al cliente
-        res.status(201).json({ message: 'Created publication... ' })
+        res.status(200).json({ message: 'Created publication... ' })
 
     } catch (error) {
         console.log(error)
         if (error?.errno === 1452) {
-            return res.status(400).json({ message :'The indicated category does not exist, check your data....'})
+            return res.status(402).json({ message :'The indicated category does not exist, check your data....'})
         } 
           
         return res.status(500).json({ message: 'Something goes wrong' })
@@ -208,11 +208,11 @@ export const updatePublication = async (req,res) =>{
         // Validar el id del registro insertado
         if (result.affectedRows <= 0) {
             /* fs.unlinkSyn(`/uploads/${req.file.filename}`) */
-            return res.status(500).json({ message: 'Error, when updating the publication' })
+            return res.status(501).json({ message: 'Error, when updating the publication' })
         }
 
         // Mensaje al cliente
-        res.status(201).json({ message: 'Updated the publication'})
+        res.status(200).json({ message: 'Updated the publication'})
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: 'Something goes wrong' })
@@ -236,7 +236,7 @@ export const deletePublication = async (req,res) =>{
         if(!isAdmin){
             sql = 'DELETE FROM publications WHERE user_id = ? AND id_publication = ? '
             datos = [idUser, idPub]
-        }else{ // Caso contrario el que elimina es el comentario es el administrador
+        }else{ // Caso contrario el que elimina la publicaccion es el administrador
             sql = 'DELETE FROM publications WHERE id_publication = ?'
             datos = [idPub]
         }
@@ -244,10 +244,10 @@ export const deletePublication = async (req,res) =>{
         const [result] = await pool.execute(sql, datos)
 
         if(result.affectedRows <= 0){
-            return res.status(500).json({ message: 'Error, when deleted publication' })
+            return res.status(501).json({ message: 'Error, when deleted publication' })
         }
 
-        res.status(201).json({ message: 'Publication successfully deleted'})
+        res.status(200).json({ message: 'Publication successfully deleted'})
     } catch (error) {
         return res.status(500).json({ message: 'Something goes wrong' })
     }

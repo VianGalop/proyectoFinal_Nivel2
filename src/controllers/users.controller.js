@@ -6,7 +6,7 @@ export const readUsers = async (req, res) =>{
         const {idUser} = req.params
 
         if(isNaN(idUser)){
-            return res.status(400).json({ message: 'Sorry, the route was not found...'})
+            return res.status(404).json({ message: 'Sorry, the route was not found...'})
         }
 
         //verifica el rol que tiene.
@@ -19,7 +19,7 @@ export const readUsers = async (req, res) =>{
         const [rows] = await pool.execute('SELECT * FROM users')
         // Verificar que haya datos
         if(rows.length <= 0){
-            return res.status(404).json({ message: 'Users not found' })
+            return res.status(405).json({ message: 'Users not found' })
         }
 
         // Envia la informacion.
@@ -79,7 +79,7 @@ export const createUser = async (req,res) => {
         const [user] = await pool.execute('SELECT username FROM users WHERE id_user = ?', [result[0].insertId])
   
         // Mensaje al cliente
-        res.status(201).json({ message: `Created user... Welcomen ${user[0].username}` })
+        res.status(200).json({ message: `Created user... Welcomen ${user[0].username}` })
 
     } catch (error) {
         console.log(error)
@@ -144,7 +144,7 @@ export const updateUser = async (req,res) =>{
           const isAdmin = await checkRol(idUser,res)
           if(isAdmin){
               if(isNaN(idOtro)){ //Eres el administrador
-                  return res.status(402).json({message: 'You have not indicated the user to updated' })
+                  return res.status(403).json({message: 'You have not indicated the user to updated' })
               }
               sql = 'UPDATE users SET name = ?, last_name = ?, email = ?,  username = ?, date_birthday = ?, gender = ? WHERE id_user = ?'
               datos =[name, lastName, email, username, birthday,gender,idOtro]
@@ -170,7 +170,7 @@ export const updateUser = async (req,res) =>{
         // Validar si el error es por un username duplicado. Si es así, borrar la imagen y cambiar el mensaje y código de error.
         if (error?.errno === 1062) {
           message = 'Username already exists'
-          statusCode = 400
+          statusCode = 402
         } 
         res.status(statusCode).json({ message })
     }
